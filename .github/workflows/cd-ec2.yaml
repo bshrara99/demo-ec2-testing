@@ -42,17 +42,20 @@ jobs:
           NAME="${{ env.NAME }}"
           PORT="${{ env.PORT }}"
 
-          # always pull the latest image
-          docker pull "$IMAGE"
+          # Pull the latest image from DockerHub
+          sudo docker pull "$IMAGE"
 
-          # stop & remove existing container with the same name (if any)
-          if [ "$(docker ps -aq -f name=^/${NAME}$)" ]; then
-            docker rm -f "$NAME" || true
+          # Stop & remove existing container if running
+          if [ "$(sudo docker ps -aq -f name=^/${NAME}$)" ]; then
+            sudo docker rm -f "$NAME" || true
           fi
 
-          # run fresh container
-          docker run -d \
+          # Run fresh container
+          sudo docker run -d \
             --name "$NAME" \
-            --restart unless-stopped \
+            --restart always \
             -p ${PORT}:${PORT} \
             "$IMAGE"
+
+          # Print active containers for verification in Actions logs
+          sudo docker ps
